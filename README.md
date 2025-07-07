@@ -212,8 +212,8 @@ customize these settings for your use case.
 | `eval_freq`        | Number of steps between evaluations on the validation set. |
 | `no_eval`         | If `False`, enables periodic model evaluation during training. |
 | `ckpt_freq`       | Number of steps between saving model checkpoints. |
-| `full_finetuning` | Set to `True` for **full fine-tuning**, or `False` to use **LoRA** for adaptation. |
-| `save_adapters`  | If `True`, saves only **LoRA adapters** (works with [Moshi Inference](https://github.com/kyutai-labs/moshi)). If `False`, merges LoRA into the base model (requires sufficient CPU/GPU memory). |
+| `full_finetuning` | Set to `True` for **full fine-tuning** (trains all parameters), or `False` to use **LoRA** for adaptation. Requires more GPU memory and storage when enabled. |
+| `save_adapters`  | If `True`, saves only **LoRA adapters** (works with [Moshi Inference](https://github.com/kyutai-labs/moshi)). If `False`, saves the complete model. **Must be `False` when `full_finetuning` is `True`**. |
 | `wandb.key`      | API key for **Weights & Biases (wandb)** logging (Optional). |
 | `wandb.project`  | Name of the **wandb project** where training logs will be stored. |
 
@@ -223,7 +223,37 @@ customize these settings for your use case.
   <figcaption>Figure 1: Training curves over steps on dailytalk dataset using a maximal learning rate of 4e-6.</figcaption>
 </figure>
 
-## 🔮 Inference
+## � Full Fine-tuning (Alternative to LORA)
+
+In addition to LORA fine-tuning, this repository also supports **full fine-tuning** where all model parameters are trained. This can potentially achieve better performance but requires more computational resources.
+
+### Quick Start with Full Fine-tuning
+
+1. **Use the full fine-tuning configuration:**
+   ```bash
+   torchrun --nproc-per-node 8 --master_port $RANDOM -m train example/moshi_7B_full_finetune.yaml
+   ```
+
+2. **Key differences from LORA:**
+   - `full_finetuning: true` - Enables full parameter training
+   - `lora.enable: false` - Disables LORA
+   - `save_adapters: false` - Saves complete model
+   - Lower learning rate (`1e-6`) and batch size (`8`) recommended
+
+3. **Memory Requirements:**
+   - Single GPU: ~75-80GB (H100 recommended)
+   - Multi-GPU: ~25-30GB per GPU (A100/H100)
+
+4. **Inference with full fine-tuned model:**
+   ```bash
+   python -m moshi.server \
+     --moshi-weight=$CHECKPOINT_DIR/consolidated/consolidated.safetensors \
+     --config-path=$CHECKPOINT_DIR/consolidated/config.json
+   ```
+
+For detailed instructions, see `FULL_FINETUNE_README.md`.
+
+## �🔮 Inference
 
 #### 1️⃣ Install Moshi for inference
 
