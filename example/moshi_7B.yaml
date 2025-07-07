@@ -8,12 +8,18 @@ data:
 moshi_paths: 
   hf_repo_id: "kyutai/moshiko-pytorch-bf16"
 
-full_finetuning: false # Activate lora.enable if partial finetuning
+# -------- Training mode --------
+# Set to true to fine-tune every weight of the model. When this is enabled
+# make sure that **lora.enable** remains **false** and **save_adapters** is
+# also **false** (we will save the full model instead).
+full_finetuning: true
+
+# LoRA specific arguments – keep them disabled when doing a full fine-tune.
 lora:
-  enable: true # Set to False if full_finetuning is True
-  rank: 128
-  scaling: 2.
-  ft_embed: false # Optional, set to True if you want to finetune the embedding layer
+  enable: false
+  rank: 128       # Ignored when enable is false
+  scaling: 2.     # Ignored when enable is false
+  ft_embed: false # Ignored when enable is false
 
 first_codebook_weight_multiplier: 100.
 text_padding_weight: .5
@@ -36,8 +42,9 @@ do_eval: false
 do_ckpt: true
 ckpt_freq: 100
 
-
-save_adapters: true # Must be False if full_finetuning is True
+# When doing full finetuning **save_adapters** must be set to *false* so that
+# the complete model checkpoint is stored.
+save_adapters: false
 
 run_dir: ""  # Fill
 

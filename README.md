@@ -8,12 +8,13 @@
   <img src="./images/moshi_finetune_logo.png" alt="Moshi interface" width="250px" style="margin-left: 20px;">
 </p>
 
-**Moshi-Finetune** provides an easy way to fine-tune [Moshi models](https://github.com/kyutai-labs/moshi)
-using **LoRA (Low-Rank Adaptation)** for lightweight and efficient training. This guide walks you through
-installation, model downloading, dataset preparation, training, and inference. By following these steps,
-you'll be able to: transform stereo audio files into your very own transcribed dataset, fine-tune
-[moshi weights](https://huggingface.co/kyutai/moshiko-pytorch-bf16) on real conversations, and—best of
-all—chat with your customized moshi model!
+**Moshi-Finetune** lets you fine-tune [Moshi models](https://github.com/kyutai-labs/moshi) end-to-end –
+every single weight – with just a few commands. While the project still supports lightweight **LoRA**
+adapters, this README now focuses on **full model fine-tuning**.  We will walk you through installation,
+model downloading, dataset preparation, training, and inference so that you can: 1) transform stereo
+audio files into your very own transcribed dataset, 2) fine-tune
+[moshi weights](https://huggingface.co/kyutai/moshiko-pytorch-bf16) on real conversations, and – best of
+all – chat with your fully customised Moshi model!
 
 ## 📥 Installation
 
@@ -143,16 +144,19 @@ This script can also be run in a distributed manner with SLURM using e.g.
 
 Once your dataset is ready, start fine-tuning using the following steps.
 
-#### 📌 Recommended settings for quick training:
+#### 📌 Recommended settings for a quick **full** fine-tune:
 ```
-lora:
-  enable: true
-  rank: 128
-  scaling: 2.
+# example/moshi_7B.yaml
 
-duration_sec: 100
-batch_size: 16
-max_steps: 2000
+full_finetuning: true  # Train *all* model weights
+
+lora:                  # Keep LoRA disabled
+  enable: false
+
+# Sequence length & optimisation
+duration_sec: 100      # ≈1.3 k tokens / sample
+batch_size: 16         # per-GPU
+max_steps: 2000        # increase for longer training
 ```
 
 #### 📌 Run training on a single GPU:
@@ -201,7 +205,7 @@ customize these settings for your use case.
 | `max_steps`         | Total number of training steps. Defines how many iterations the training will run. **Total tokens processed = max_steps × num_gpus × batch_size × duration_seq × 9 (token per step) × 12.5 (step per second) **. |
 | `optim.lr`          | Learning rate. Recommended starting value: **2e-6**. |
 | `optim.weight_decay` | Weight decay for regularization. Default: **0.1**. |
-| `optim.pct_start`   | Percentage of total training steps used for learning rate warm-up before decay. Equivalent to `pct_start` in PyTorch’s `OneCycleLR`. |
+| `optim.pct_start`   | Percentage of total training steps used for learning rate warm-up before decay. Equivalent to `pct_start` in PyTorch's `OneCycleLR`. |
 | `lora.rank`         | Size of the **LoRA adapters**. Recommended **≤128** for efficiency. |
 | `lora.ft_embed`     | Whether to full-finetune embedding matrices while fine-tuning with LoRA all the other linear layers. | 
 | `seed`              | Random seed for initialization, data shuffling, and sampling (ensures reproducibility). |
