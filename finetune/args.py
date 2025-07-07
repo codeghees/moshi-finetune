@@ -129,3 +129,9 @@ class TrainArgs(Serializable):
                 "This might lead to OOM errors - make sure you have enough CPU "
                 "and GPU memory."
             )
+
+        if self.full_finetuning:
+            if self.lora.enable:
+                logging.warning("`full_finetuning` is True; disabling LoRA training")
+            self.lora.enable = False
+            self.save_adapters = False
