@@ -155,6 +155,19 @@ batch_size: 16
 max_steps: 2000
 ```
 
+#### 📌 Full fine-tuning (no LoRA):
+Use the provided `example/moshi_7B_full.yaml` configuration or set the following options:
+```
+full_finetuning: true
+lora:
+  enable: false
+save_adapters: false
+```
+Run training as follows:
+```sh
+torchrun --nproc-per-node 1 -m train example/moshi_7B_full.yaml
+```
+
 #### 📌 Run training on a single GPU:
 
 ```sh
@@ -184,8 +197,10 @@ If you encounter **out-of-memory errors**, try reducing the `batch_size`. If the
 
 ## ⚙️ Customizing training configuration
 
-The example `moshi-finetune/example/moshi_7B.yaml` defines reasonable parameters for learning rate, weight decay, etc... but you are advised to
-customize these settings for your use case.
+The examples `moshi-finetune/example/moshi_7B.yaml` (LoRA) and
+`moshi-finetune/example/moshi_7B_full.yaml` (full fine-tuning) provide
+reasonable starting parameters, but you are advised to customize these
+settings for your use case.
 
 
 ### 🔧 Key training parameters
